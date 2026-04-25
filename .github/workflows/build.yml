@@ -3,8 +3,6 @@ name: Build ESP32 Firmware
 on:
   push:
     branches: [main]
-  release:
-    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -88,41 +86,3 @@ jobs:
         path: |
           output/*.bin
           output/README.txt
-          
-    - name: Create Release
-      if: github.event_name == 'release' || github.event_name == 'push'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          output/*.bin
-          output/README.txt
-        body: |
-          ## ESP32 BLE Spam Web Controller v1.0
-          
-          ### WiFi Config
-          - SSID: GMpro
-          - Password: Sangkur87
-          
-          ### Flash Instructions
-          ```bash
-          esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 115200 write_flash \
-            0x1000 bootloader.bin \
-            0x8000 partitions.bin \
-            0x10000 esp32-ble-spam.bin
-          ```
-          
-          ### Usage
-          1. Open Serial Monitor (115200 baud)
-          2. Note IP address
-          3. Open browser to http://[IP]
-          4. Click START SPAM
-          
-          ### Features
-          - 25 device payloads
-          - Web UI control
-          - Random MAC
-          - Adjustable interval
-        draft: false
-        prerelease: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
