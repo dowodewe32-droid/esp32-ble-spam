@@ -38,11 +38,11 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
 
     Serial.println();
-    Serial.println(F("==========================================="));
-    Serial.println(F("  ESP32 BLE Spam - Web Controller v1.0"));
-    Serial.println(F("==========================================="));
+    Serial.println("===========================================");
+    Serial.println("  ESP32 BLE Spam - Web Controller v1.0");
+    Serial.println("===========================================");
     Serial.println();
-    Serial.println(F("Connecting to WiFi..."));
+    Serial.println("Connecting to WiFi...");
 
     WiFi.mode(WIFI_STA);
     WiFi.begin(wifi_ssid, wifi_password);
@@ -58,23 +58,23 @@ void setup() {
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println();
         Serial.println();
-        Serial.println(F("========== WiFi CONNECTED =========="));
-        Serial.println(F("SSID: GMpro"));
-        Serial.print(F("IP: "));
+        Serial.println("========== WiFi CONNECTED ==========");
+        Serial.println("SSID: GMpro");
+        Serial.print("IP: ");
         Serial.println(WiFi.localIP());
-        Serial.print(F("Web: http://"));
+        Serial.print("Web: http://");
         Serial.println(WiFi.localIP());
-        Serial.println(F("==================================="));
+        Serial.println("===================================");
         digitalWrite(LED_BUILTIN, HIGH);
     } else {
         Serial.println();
-        Serial.println(F("WiFi FAILED! Starting AP mode..."));
+        Serial.println("WiFi FAILED! Starting AP mode...");
         WiFi.mode(WIFI_AP);
         WiFi.softAP("BLE-Spam", "12345678");
         delay(200);
-        Serial.print(F("AP IP: "));
+        Serial.print("AP IP: ");
         Serial.println(WiFi.softAPIP());
-        Serial.print(F("Web: http://"));
+        Serial.print("Web: http://");
         Serial.println(WiFi.softAPIP());
         digitalWrite(LED_BUILTIN, HIGH);
     }
@@ -89,7 +89,7 @@ void setup() {
     server.begin();
 
     Serial.println();
-    Serial.println(F("Server started. Ready to spam!"));
+    Serial.println("Server started. Ready to spam!");
     Serial.println();
 }
 
@@ -109,19 +109,21 @@ void handleRoot() {
         ipStr = WiFi.softAPIP().toString();
     }
     
-    String html = R"(<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ESP32 BLE Spam</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;min-height:100vh;padding:20px}.container{max-width:500px;margin:0 auto}.header{text-align:center;padding:30px 0}.header h1{color:#e94560;font-size:28px;margin-bottom:10px}.header p{color:#888;font-size:14px}.header p a{color:#e94560}.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;margin-bottom:16px;backdrop-filter:blur(10px)}.status{text-align:center;padding:20px;border-radius:12px;font-size:20px;font-weight:bold;margin-bottom:20px}.status.off{background:linear-gradient(135deg,#c0392b,#e74c3c)}.status.on{background:linear-gradient(135deg,#27ae60,#2ecc71);animation:pulse 1s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}.form-group{margin-bottom:16px}.form-group label{display:block;color:#888;margin-bottom:8px;font-size:13px;text-transform:uppercase;letter-spacing:1px}.form-group select,.form-group input{width:100%;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:#fff;font-size:16px;outline:none}.btn{display:block;width:100%;padding:16px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;transition:all .3s;margin-top:10px}.btn-start{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff}.btn-start:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(39,174,96,0.4)}.btn-stop{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff}.btn-stop:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(192,57,43,0.4)}.device-list{margin-top:20px;padding:15px;background:rgba(0,0,0,0.2);border-radius:10px;font-size:13px}.device-list h4{color:#e94560;margin-bottom:10px}.device-list span{display:inline-block;padding:5px 10px;margin:3px;background:rgba(255,255,255,0.1);border-radius:5px;font-size:12px}</style></head><body><div class="container"><div class="header"><h1>ESP32 BLE Spam</h1><p>Security Testing Tool | <a href="http://)" + ipStr + R"(">)" + ipStr + R"(</a></p></div><div class="card"><div id="status" class="status off">STOPPED</div><div class="form-group"><label>Target Device</label><select id="device">)";
+    String html = "<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>ESP32 BLE Spam</title>";
+    html += "<style>* {margin:0;padding:0;box-sizing:border-box} body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;min-height:100vh;padding:20px} .container {max-width:500px;margin:0 auto} .header {text-align:center;padding:30px 0} .header h1 {color:#e94560;font-size:28px;margin-bottom:10px} .header p {color:#888;font-size:14px} .card {background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;margin-bottom:16px} .status {text-align:center;padding:20px;border-radius:12px;font-size:20px;font-weight:bold;margin-bottom:20px} .status.off {background:linear-gradient(135deg,#c0392b,#e74c3c)} .status.on {background:linear-gradient(135deg,#27ae60,#2ecc71);animation:pulse 1s infinite} @keyframes pulse {0%,100%{opacity:1}50%{opacity:0.7}} .form-group {margin-bottom:16px} .form-group label {display:block;color:#888;margin-bottom:8px;font-size:13px;text-transform:uppercase} .form-group select,.form-group input {width:100%;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:#fff;font-size:16px} .btn {display:block;width:100%;padding:16px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:10px} .btn-start {background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff} .btn-start:hover {transform:translateY(-2px)} .btn-stop {background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff} .btn-stop:hover {transform:translateY(-2px)} .device-list {margin-top:20px;padding:15px;background:rgba(0,0,0,0.2);border-radius:10px;font-size:13px} .device-list h4 {color:#e94560;margin-bottom:10px} .device-list span {display:inline-block;padding:5px 10px;margin:3px;background:rgba(255,255,255,0.1);border-radius:5px;font-size:12px}</style>";
+    html += "</head><body><div class='container'><div class='header'><h1>ESP32 BLE Spam</h1><p>Security Testing Tool | " + ipStr + "</p></div><div class='card'><div id='status' class='status off'>STOPPED</div><div class='form-group'><label>Target Device</label><select id='device'>";
     
     for (int i = 0; i < device_count; i++) {
         html += "<option value='" + String(i) + "'>" + String(device_names[i]) + "</option>";
     }
     
-    html += R"(</select></div><div class="form-group"><label>Interval (ms)</label><input type="number" id="interval" value="1000" min="100" max="5000" step="100"></div><div class="form-group"><label><input type="checkbox" id="randomMac" checked> Random MAC Address</label></div><button class="btn btn-start" onclick="startSpam()">START SPAM</button><button class="btn btn-stop" onclick="stopSpam()">STOP SPAM</button></div><div class="card"><div class="device-list"><h4>Available Devices (25)</h4>)";
+    html += "</select></div><div class='form-group'><label>Interval (ms)</label><input type='number' id='interval' value='1000' min='100' max='5000' step='100'></div><div class='form-group'><label><input type='checkbox' id='randomMac' checked> Random MAC Address</label></div><button class='btn btn-start' onclick='startSpam()'>START SPAM</button><button class='btn btn-stop' onclick='stopSpam()'>STOP SPAM</button></div><div class='card'><div class='device-list'><h4>Available Devices (25)</h4>";
     
     for (int i = 0; i < device_count; i++) {
         html += "<span>" + String(device_names[i]) + "</span>";
     }
     
-    html += R"(</div></div></div><script>let isSpamming=false;function startSpam(){let d=document.getElementById('device').value;let i=document.getElementById('interval').value;let m=document.getElementById('randomMac').checked?1:0;fetch('/start?device='+d+'&interval='+i+'&mac='+m).then(r=>r.text()).then(()=>{document.getElementById('status').className='status on';document.getElementById('status').textContent='SPAMMING';isSpamming=true})});function stopSpam(){fetch('/stop').then(r=>r.text()).then(()=>{document.getElementById('status').className='status off';document.getElementById('status').textContent='STOPPED';isSpamming=false})});function updateStatus(){fetch('/status').then(r=>r.json()).then(d=>{if(d.spamming!==isSpamming){isSpamming=d.spamming;document.getElementById('status').className=d.spamming?'status on':'status off';document.getElementById('status').textContent=d.spamming?'SPAMMING':'STOPPED'}})};setInterval(updateStatus,2000);</script></body></html>)";
+    html += "</div></div></div><script>let isSpamming=false;function startSpam(){let d=document.getElementById('device').value;let i=document.getElementById('interval').value;let m=document.getElementById('randomMac').checked?1:0;fetch('/start?device='+d+'&interval='+i+'&mac='+m).then(r=>r.text()).then(()=>{document.getElementById('status').className='status on';document.getElementById('status').textContent='SPAMMING';isSpamming=true})});function stopSpam(){fetch('/stop').then(r=>r.text()).then(()=>{document.getElementById('status').className='status off';document.getElementById('status').textContent='STOPPED';isSpamming=false})});function updateStatus(){fetch('/status').then(r=>r.json()).then(d=>{if(d.spamming!==isSpamming){isSpamming=d.spamming;document.getElementById('status').className=d.spamming?'status on':'status off';document.getElementById('status').textContent=d.spamming?'SPAMMING':'STOPPED'}})};setInterval(updateStatus,2000);</script></body></html>";
     
     server.send(200, "text/html", html);
 }
@@ -149,8 +151,6 @@ void handleStart() {
                     
                     NimBLEAdvertising* pAdv = BLEDevice::getAdvertising();
                     pAdv->setAdvertisementData(adv);
-                    pAdv->setMaxValues(0);
-                    pAdv->setMaxAttributes(0);
                     pAdv->start();
                     delay(80);
                     pAdv->stop();
