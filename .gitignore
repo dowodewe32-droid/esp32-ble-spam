@@ -1,0 +1,9 @@
+.pio
+.vscode
+.pioenvs
+.piobuild
+.piolibdeps
+*.pyc
+__pycache__
+*.log
+.DS_Store
