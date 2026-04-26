@@ -38,11 +38,12 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
 
     Serial.println();
-    Serial.println("===========================================");
-    Serial.println("  ESP32 BLE Spam - Web Controller v1.0");
-    Serial.println("===========================================");
+    Serial.println(F("==========================================="));
+    Serial.println(F("  ESP32 BLE Spam - Web Controller v1.0"));
+    Serial.println(F("==========================================="));
     Serial.println();
-    Serial.println("Connecting to WiFi...");
+    Serial.print(F("Attempting to connect to WiFi: "));
+    Serial.println(wifi_ssid);
 
     WiFi.mode(WIFI_STA);
     WiFi.begin(wifi_ssid, wifi_password);
@@ -58,23 +59,24 @@ void setup() {
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println();
         Serial.println();
-        Serial.println("========== WiFi CONNECTED ==========");
-        Serial.println("SSID: GMpro");
-        Serial.print("IP: ");
+        Serial.println(F("========== WiFi CONNECTED =========="));
+        Serial.print(F("SSID: "));
+        Serial.println(WiFi.SSID());
+        Serial.print(F("IP: "));
         Serial.println(WiFi.localIP());
-        Serial.print("Web: http://");
+        Serial.print(F("Web: http://"));
         Serial.println(WiFi.localIP());
-        Serial.println("===================================");
+        Serial.println(F("==================================="));
         digitalWrite(LED_BUILTIN, HIGH);
     } else {
         Serial.println();
-        Serial.println("WiFi FAILED! Starting AP mode...");
+        Serial.println(F("WiFi FAILED! Starting AP mode..."));
         WiFi.mode(WIFI_AP);
         WiFi.softAP("BLE-Spam", "12345678");
         delay(200);
-        Serial.print("AP IP: ");
+        Serial.print(F("AP IP: "));
         Serial.println(WiFi.softAPIP());
-        Serial.print("Web: http://");
+        Serial.print(F("Web: http://"));
         Serial.println(WiFi.softAPIP());
         digitalWrite(LED_BUILTIN, HIGH);
     }
@@ -89,7 +91,7 @@ void setup() {
     server.begin();
 
     Serial.println();
-    Serial.println("Server started. Ready to spam!");
+    Serial.println(F("Server started. Ready to spam!"));
     Serial.println();
 }
 
