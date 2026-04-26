@@ -12,7 +12,7 @@ WebServer server(80);
 bool spamming = false;
 bool random_mac = true;
 int current_device = 0;
-unsigned long interval_ms = 1000;
+unsigned long interval_ms = 1000; // ms between advertisement bursts
 TaskHandle_t spamTaskHandle = NULL;
 
 const char* device_names[] = {
@@ -82,6 +82,8 @@ void setup() {
     }
 
     BLEDevice::init("");
+    // Optional: set TX power to max
+    esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, (esp_ble_power_type_t)9);
 
     server.on("/", HTTP_GET, handleRoot);
     server.on("/start", HTTP_GET, handleStart);
@@ -99,7 +101,8 @@ void loop() {
     server.handleClient();
     
     if (spamming) {
-        digitalWrite(LED_BUILTIN, (millis() / 200) % 2 ? HIGH : LOW);
+        // Blink LED fast when spamming
+        digitalWrite(LED_BUILTIN, (millis() / 100) % 2 ? HIGH : LOW);
     } else {
         digitalWrite(LED_BUILTIN, HIGH);
     }
@@ -141,10 +144,12 @@ void handleStart() {
         xTaskCreatePinnedToCore(
             [](void* param) {
                 uint8_t mac[6];
+                Serial.println(F("BLE spam task started"));
                 while (spamming) {
                     if (random_mac) {
                         for (int i = 0; i < 6; i++) mac[i] = esp_random() & 0xFF;
                         esp_base_mac_addr_set(mac);
+                        Serial.printf(F("Set random MAC: %02X:%02X:%02X:%02X:%02X:%02X\n"), mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
                     }
                     
                     BLEAdvertisementData adv;
@@ -153,11 +158,19 @@ void handleStart() {
                     
                     NimBLEAdvertising* pAdv = BLEDevice::getAdvertising();
                     pAdv->setAdvertisementData(adv);
+                    pAdv->setConnectable(false); // non-connectable advertisements
+                    // Optionally set min/max interval (0x20 to 0x4000 = 20ms to 10.24s)
+                    // We'll rely on our own delay timing, but set reasonable values:
+                    pAdv->setMinInterval(0x0020); // 20ms
+                    pAdv->setMaxInterval(0x0040); // 40ms
                     pAdv->start();
-                    delay(80);
+                    Serial.println(F("Started advertising"));
+                    delay(80); // advertise for 80ms
                     pAdv->stop();
+                    Serial.println(F("Stopped advertising"));
                     delay(interval_ms);
                 }
+                Serial.println(F("BLE spam task exiting"));
                 vTaskDelete(NULL);
             },
             "BLE-Spam",
