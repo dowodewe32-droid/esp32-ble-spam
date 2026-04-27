@@ -5,7 +5,7 @@
 #include <NimBLEScan.h>
 #include <NimBLEAdvertising.h>
 
-#define LED_BUILTIN 2°
+#define LED_BUILTIN 2
 
 const char* wifi_ssid = "GMpro";
 const char* wifi_password = "Sangkur87";
@@ -19,7 +19,6 @@ unsigned long interval_ms = 1000;
 TaskHandle_t spamTaskHandle = NULL;
 TaskHandle_t scanTaskHandle = NULL;
 
-// Scan results
 struct ScanResult {
     String name;
     String addr;
@@ -28,7 +27,6 @@ struct ScanResult {
 };
 std::vector<ScanResult> scanResults;
 
-// Scan callback
 class MyScanCallbacks : public NimBLEScanCallbacks {
 public:
     void onResult(NimBLEAdvertisedDevice* advertisedDevice) {
@@ -47,7 +45,7 @@ const char* device_names[] = {
     "HomePod Mini", "iPhone", "iPad", "MacBook Pro", "Find My",
     "Share Menu", "NameDrop", "AirPlay", "Handoff", "AirDrop",
     "Samsung Buds", "Galaxy Watch", "Galaxy Tag", "Galaxy Phone",
-    "Windows Phone", "Windows Device", "Chromebook", "Android Auto",
+    "Windows Phone", "Windows Device", "Chromeboook", "Android Auto",
     "Smart Lock", "Google Pixel"
 };
 const int device_count = sizeof(device_names) / sizeof(device_names[0]);
@@ -66,7 +64,8 @@ void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
     
-    Serial.println("\n\n===========================================");
+    Serial.println("\n");
+    Serial.println("===========================================");
     Serial.println("  ESP32 BLE Spam - Web Controller v1.2");
     Serial.println("===========================================");
     Serial.println();
@@ -108,13 +107,11 @@ void setup() {
         digitalWrite(LED_BUILTIN, HIGH);
     }
     
-    // Initialize BLE
     Serial.println("\nInitializing BLE...");
     BLEDevice::init("ESP32-BLE");
     delay(500);
     Serial.println("BLE initialized!");
     
-    // Setup web server
     server.on("/", HTTP_GET, handleRoot);
     server.on("/start", HTTP_GET, handleStart);
     server.on("/stop", HTTP_GET, handleStop);
@@ -125,7 +122,7 @@ void setup() {
     server.begin();
     
     Serial.println("\nServer started. Ready to spam!");
-    Serial.println("Open browser to: http://" + WiFi.localIP().toString() + " or http://" + WiFi.softAPIP().toString());
+    Serial.println("Open browser to: http://" + WiFI.localIP().toString() + " or http://" + WiFI.softAPIP().toString());
 }
 
 void loop() {
@@ -141,13 +138,13 @@ void loop() {
 }
 
 void handleRoot() {
-    String ipStr = WiFi.localIP().toString();
+    String ipStr = WiFI.localIP().toString();
     if (ipStr == "0.0.0.0") {
-        ipStr = WiFi.softAPIP().toString();
+        ipStr = WiFI.softAPIP().toString();
     }
     
     String html = "<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>ESP32 BLE Spam</title>";
-    html += "<style>* {margin:0;padding:0;box-sizing:border-box} body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;min-height:100vh;padding:20px} .container {max-width:500px;margin:0 auto} .header {text-align:center;padding:30px 0} .header h1 {color:#e94560;font-size:28px;margin-bottom:10px} .header p {color:#888;font-size:14px} .card {background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;margin-bottom:16px} .status {text-align:center;padding:20px;border-radius:12px;font-size:20px;font-weight:bold;margin-bottom:20px} .status.off {background:linear-gradient(135deg,#c0392b,#e74c3c)} .status.on {background:linear-gradient(135deg,#27ae60,#2ecc71);animation:pulse 1s infinite} @keyframes pulse {0%,100%{opacity:1} 50%{opacity:0.7}} .form-group {margin-bottom:16px} .form-group label {display:block;color:#888;margin-bottom:8px;font-size:13px;text-transform:uppercase} .form-group select,.form-group input {width:100%;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:#fff;font-size:16px} .btn {display:block;width:100%;padding:16px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:10px} .btn-start {background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff} .btn-start:hover {transform:translateY(-2px)} .btn-stop {background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff} .btn-stop:hover {transform:translateY(-2px)} .btn-scan {background:linear-gradient(135deg,#3498db,#2980b9);color:#fff} .btn-scan:hover {transform:translateY(-2px)} .device-list {margin-top:20px;padding:15px;background:rgba(0,0,0,0.2);border-radius:10px;font-size:13px} .device-list h4 {color:#e94560;margin-bottom:10px} .device-list span {display:inline-block;padding:5px 10px;margin:3px;background:rgba(255,255,255,0.1);border-radius:5px;font-size:12px} .scan-results {margin-top:20px;padding:15px;background:rgba(0,0,0,0.2);border-radius:10px;max-height:300px;overflow-y:auto} .scan-results h4 {color:#3498db;margin-bottom:10px} .scan-item {padding:8px;border-bottom:1px solid rgba(255,255,255,0.1);font-size:12px} .scan-item:last-child {border-bottom:none} .rssi-good {color:#2ecc71} .rssi-ok {color:#f39c12} .rssi-bad {color:#e74c3c}</style>";
+    html += "<style>* {margin:0;padding:0;box-sizing:border-box} body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;min-height:100vh;padding:20px} .container {max-width:500px;margin:0 auto} .header {text-align:center;padding:30px 0} .header h1 {color:#e94560;font-size:28px;margin-bottom:10px} .header p {color:#888;font-size:14px} .card {background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;margin-bottom:16px} .status {text-align:center;padding:20px;border-radius:12px;font-size:20px;font-weight:bold;margin-bottom:20px} .status.off {background:linear-gradient(135deg,#c0392b,#e74c3c)} .status.on {background:linear-gradient(135deg,#27ae60,#2ecc71);animation:pulse 1s infinite} @keyframes pulse {0%,100%{opacity:1}50%{opacity:0.7}} .form-group {margin-bottom:16px} .form-group label {display:block;color:#888;margin-bottom:8px;font-size:13px;text-transform:uppercase} .form-group select,.form-group input {width:100%;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:#fff;font-size:16px} .btn {display:block;width:100%;padding:16px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:10px} .btn-start {background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff} .btn-start:hover {transform:translateY(-2px)} .btn-stop {background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff} .btn-stop:hover {transform:translateY(-2px)} .btn-scan {background:linear-gradient(135deg,#3498db,#2980b9);color:#fff} .device-list {margin-top:20px;padding:15px;background:rgba(0,0,0,0.2);border-radius:10px;font-size:13px} .device-list h4 {color:#e94560;margin-bottom:10px} .device-list span {display:inline-block;padding:5px 10px;margin:3px;background:rgba(255,255,255,0.1);border-radius:5px;font-size:12px} .scan-results {margin-top:20px;padding:15px;background:rgba(0,0,0,0.2);border-radius:10px;max-height:300px;overflow-y:auto} .scan-results h4 {color:#3498db;margin-bottom:10px} .scan-item {padding:8px;border-bottom:1px solid rgba(255,255,255,0.1);font-size:12px} .scan-item:last-child {border-bottom:none} .rssi-good {color:#2ecc71} .rssi-ok {color:#f39c12} .rssi-bad {color:#e74c3c}</style>";
     html += "</head><body><div class='container'><div class='header'><h1>ESP32 BLE Spam</h1><p>Security Testing Tool | " + ipStr + "</p></div><div class='card'><div id='status' class='status off'>STOPPED</div><div class='form-group'><label>Target Device</label><select id='device'>";
     
     for (int i = 0; i < device_count; i++) {
@@ -160,7 +157,7 @@ void handleRoot() {
         html += "<span>" + String(device_names[i]) + "</span>";
     }
     
-    html += "</div></div><div class='card'><div class='scan-results'><h4>Scan Results (<span id='scanCount'>0</span>)</h4><div id='scanList'></div></div></div><script>let isSpamming=false;let isScanning=false;function startSpam(){let d=document.getElementById('device').value;let i=document.getElementById('interval').value;let m=document.getElementById('randomMac').checked?1:0;fetch('/start?device='+d+'&interval='+i+'&mac='+m).then(r=>r.text()).then(()=>{document.getElementById('status').className='status on';document.getElementById('status').textContent='SPAMMING';isSpamming=true})};function stopSpam(){fetch('/stop').then(r=>r.text()).then(()=>{document.getElementById('status').className='status off';document.getElementById('status').textContent='STOPPED';isSpamming=false})};function scanBLE(){fetch('/scan').then(r=>r.text()).then(()=>{isScanning=true;setTimeout(updateScan,3000)})};function updateScan(){fetch('/scan_results').then(r=>r.json()).then(d=>{let html='';document.getElementById('scanCount').textContent=d.length;d.forEach(e=>{let rssiClass=e.rssi>-60?'rssi-good':e.rssi>-80?'rssi-ok':'rssi-bad';html+='<div class=\"scan-item\"><strong>'+e.name+'</strong><br>'+e.addr+' <span class=\"'+rssiClass+'\">'+e.rssi+' dBm</span> '+e.time+'s ago</div>'});document.getElementById('scanList').innerHTML=html;if(isScanning)setTimeout(updateScan,2000)});if(!isScanning)setTimeout(updateScan,2000)};function updateStatus(){fetch('/status').then(r=>r.json()).then(d=>{if(d.spamming!=isSpamming){isSpamming=d.spamming;document.getElementById('status').className=d.spamming?'status on':'status off';document.getElementById('status').textContent=d.spamming?'SPAMMING':'STOPPED'}})};setInterval(updateStatus,2000);</script></body></html>";
+    html += "</div></div><div class='card'><div class='scan-results'><h4>Scan Results (<span id='scanCount'>0</span>)</h4><div id='scanList'></div></div></div><script>let isSpamming=false;let isScanning=false;function startSpam(){let d=document.getElementById('device').value;let i=document.getElementById('interval').value;let m=document.getElementById('randomMac').checked?1:0;fetch('/start?device='+d+'&interval='+i+'&mac='+m).then(r=>r.text()).then(()=>{document.getElementById('status').className='status on';document.getElementById('status').textContent='SPAMMING';isSpamming=true})};;function stopSpam(){fetch('/stop').then(r=>r.text()).then(()=>{document.getElementById('status').className='status off';document.getElementById('status').textContent='STOPPED';isSpamming=false})};;function scanBLE(){fetch('/scan').then(r=>r.text()).then(()=>{isScanning=true;setTimeout(updateScan,3000)})};;function updateScan(){fetch('/scan_results').then(r=>r.json()).then(d=>{let html='';document.getElementById('scanCount').textContent=d.length;d.forEach(e=>{let rssiClass=e.rssi>-60?'rssi-good':e.rssi>-80?'rssi-ok':'rssi-bad';html+='<div class=\"scan-item\"><strong>'+e.name+'</strong><br>'+e.addr+' <span class=\"'+rssiClass+'\">'+e.rssi+' dBm</span> '+e.time+'s ago</div>'});document.getElementById('scanList').innerHTML=html;if(isScanning)setTimeout(updateScan,2000)});if(!isScanning)setTimeout(updateScan,2000)};;function updateStatus(){fetch('/status').then(r=>r.json()).then(d=>{if(d.spamming!=isSpamming){isSpamming=d.spamming;document.getElementById('status').className=d.spamming?'status on':'status off';document.getElementById('status').textContent=d.spamming?'SPAMMING':'STOPPED'}})};setInterval(updateStatus,2000);</script></body></html>";
     
     server.send(200, "text/html", html);
 }
