@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <NimBLEDevice.h>
+#include <NimBLEUtils.h>
 #include <NimBLEScan.h>
 
 #define LED_BUILTIN 2
@@ -43,19 +44,6 @@ void handleStatus();
 void handleDevices();
 void handleScan();
 void handleScanResults();
-
-class ScanCallbacks : public NimBLEScanCallbacks {
-public:
-    void onResult(NimBLEAdvertisedDevice* advertisedDevice) {
-        ScanResult r;
-        r.name = advertisedDevice->getName().c_str();
-        r.addr = advertisedDevice->getAddress().toString().c_str();
-        r.rssi = advertisedDevice->getRSSI();
-        r.timestamp = millis();
-        scanResults.push_back(r);
-        Serial.printf("Scan: %s (%s) %d dBm\n", r.name.c_str(), r.addr.c_str(), r.rssi);
-    }
-};
 
 void setup() {
     Serial.begin(115200);
@@ -155,7 +143,7 @@ void handleRoot() {
         html += "<span>" + String(device_names[i]) + "</span>";
     }
     
-    html += "</div></div><div class='card'><div class='scan-results'><h4>Scan Results (<span id='scanCount'>0</span>)</h4><div id='scanList'></div></div></div></div><script>let isSpamming=false;let isScanning=false;function startSpam(){let d=document.getElementById('device').value;let i=document.getElementById('interval').value;let m=document.getElementById('randomMac').checked?1:0;fetch('/start?device='+d+'&interval='+i+'&mac='+m).then(r=>r.text()).then(()=>{document.getElementById('status').className='status on';document.getElementById('status').textContent='SPAMMING';isSpamming=true})});function stopSpam(){fetch('/stop').then(r=>r.text()).then(()=>{document.getElementById('status').className='status off';document.getElementById('status').textContent='STOPPED';isSpamming=false})};function scanBLE(){fetch('/scan').then(r=>r.text()).then(()=>{isScanning=true;setTimeout(updateScan,3000)})};function updateScan(){fetch('/scan_results').then(r=>r.json()).then(d=>{let html='';document.getElementById('scanCount').textContent=d.length;d.forEach(e=>{let rssiClass=e.rssi>-60?'rssi-good':e.rssi>-80?'rssi-ok':'rssi-bad';html+='<div class=\"scan-item\"><strong>'+e.name+'</strong><br>'+e.addr+' <span class=\"'+rssiClass+'\">'+e.rssi+' dBm</span> '+e.time+'s ago</div>'});document.getElementById('scanList').innerHTML=html;if(isScanning)setTimeout(updateScan,2000)});if(!isScanning)setTimeout(updateScan,2000)};function updateStatus(){fetch('/status').then(r=>r.json()).then(d=>{if(d.spamming!==isSpamming){isSpamming=d.spamming;document.getElementById('status').className=d.spamming?'status on':'status off';document.getElementById('status').textContent=d.spamming?'SPAMMING':'STOPPED'}})};setInterval(updateStatus,2000);</script></body></html>";
+    html += "</div></div><div class='card'><div class='scan-results'><h4>Scan Results (<span id='scanCount'>0</span>)</h4><div id='scanList'></div></div></div><script>let isSpamming=false;let isScanning=false;function startSpam(){let d=document.getElementById('device').value;let i=document.getElementById('interval').value;let m=document.getElementById('randomMac').checked?1:0;fetch('/start?device='+d+'&interval='+i+'&mac='+m).then(r=>r.text()).then(()=>{document.getElementById('status').className='status on';document.getElementById('status').textContent='SPAMMING';isSpamming=true})});function stopSpam(){fetch('/stop').then(r=>r.text()).then(()=>{document.getElementById('status').className='status off';document.getElementById('status').textContent='STOPPED';isSpamming=false})});function scanBLE(){fetch('/scan').then(r=>r.text()).then(()=>{isScanning=true;setTimeout(updateScan,3000)})};function updateScan(){fetch('/scan_results').then(r=>r.json()).then(d=>{let html='';document.getElementById('scanCount').textContent=d.length;d.forEach(e=>{let rssiClass=e.rssi>-60?'rssi-good':e.rssi>-80?'rssi-ok':'rssi-bad';html+='<div class=\"scan-item\"><strong>'+e.name+'</strong><br>'+e.addr+' <span class=\"'+rssiClass+'\">'+e.rssi+' dBm</span> '+e.time+'s ago</div>'});document.getElementById('scanList').innerHTML=html;if(isScanning)setTimeout(updateScan,2000)});if(!isScanning)setTimeout(updateScan,2000)};function updateStatus(){fetch('/status').then(r=>r.json()).then(d=>{if(d.spamming!==isSpamming){isSpamming=d.spamming;document.getElementById('status').className=d.spamming?'status on':'status off';document.getElementById('status').textContent=d.spamming?'SPAMMING':'STOPPED'}})};setInterval(updateStatus,2000);</script></body></html>";
     
     server.send(200, "text/html", html);
 }
@@ -245,20 +233,33 @@ void handleScan() {
         
         xTaskCreatePinnedToCore(
             [](void* param) {
-                NimBLEScan* pScan = BLEDevice::getScan();
-                pScan->setScanCallbacks(new ScanCallbacks(), false);
+                Serial.println("BLE scan started for 5 seconds");
+                BLEScan* pScan = BLEDevice::getScan();
                 pScan->setActiveScan(true);
                 pScan->setInterval(100);
                 pScan->setWindow(99);
-                pScan->start(5, false);
-                Serial.println("Scan started for 5 seconds");
-                delay(6000);
-                Serial.println("Scan complete, found " + String(scanResults.size()) + " devices");
+                
+                NimBLEScanResults results = pScan->start(5, false);
+                int count = results.getCount();
+                Serial.printf("Scan complete, found %d devices\n", count);
+                
+                for (int i = 0; i < count; i++) {
+                    NimBLEAdvertisedDevice* device = results.getDevice(i);
+                    ScanResult r;
+                    r.name = device->getName().c_str();
+                    r.addr = device->getAddress().toString().c_str();
+                    r.rssi = device->getRSSI();
+                    r.timestamp = millis();
+                    scanResults.push_back(r);
+                    Serial.printf("  %s (%s) %d dBm\n", r.name.c_str(), r.addr.c_str(), r.rssi);
+                }
+                
                 scanning = false;
+                Serial.println("Scan task exiting");
                 vTaskDelete(NULL);
             },
             "BLE-Scan",
-            4096,
+            8192,
             NULL,
             1,
             &scanTaskHandle,
