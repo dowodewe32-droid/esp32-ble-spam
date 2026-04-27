@@ -244,7 +244,7 @@ void handleScan() {
                 Serial.printf("Scan complete, found %d devices\n", count);
                 
                 for (int i = 0; i < count; i++) {
-                    NimBLEAdvertisedDevice device = results.getDevice(i);
+                    NimBLEAdvertisedDevice* device = results.getDevice(i);
                     ScanResult r;
                     r.name = device->getName().c_str();
                     r.addr = device->getAddress().toString().c_str();
