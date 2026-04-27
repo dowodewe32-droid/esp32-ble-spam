@@ -244,11 +244,11 @@ void handleScan() {
                 Serial.printf("Scan complete, found %d devices\n", count);
                 
                 for (int i = 0; i < count; i++) {
-                    NimBLEAdvertisedDevice* device = results.getDevice(i);
+                    NimBLEAdvertisedDevice temp = results.getDevice(i);
                     ScanResult r;
-                    r.name = device->getName().c_str();
-                    r.addr = device->getAddress().toString().c_str();
-                    r.rssi = device->getRSSI();
+                    r.name = temp.getName().c_str();
+                    r.addr = temp.getAddress().toString().c_str();
+                    r.rssi = temp.getRSSI();
                     r.timestamp = millis();
                     scanResults.push_back(r);
                     Serial.printf("  %s (%s) %d dBm\n", r.name.c_str(), r.addr.c_str(), r.rssi);
