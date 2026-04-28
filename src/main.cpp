@@ -74,3 +74,88 @@ void setup() {
 
     Serial.println("Server started!");
 }
+
+void loop() {
+    server.handleClient();
+
+    if (spamming) {
+        digitalWrite(LED_PIN, (millis() / 200) % 2 ? HIGH : LOW);
+    } else {
+        digitalWrite(LED_PIN, HIGH);
+    }
+}
+
+void handleRoot() {
+    String ipStr = WiFI.localIP().toString();
+    if (ipStr == "0.0.0.0") {
+        ipStr = WiFI.softAPIP().toString();
+    }
+
+    String html = "<html><body>";
+    html += "<h1>ESP32 BLE Spam</h1>";
+    html += "<p>" + ipStr + "</p>";
+    html += "<p id='status'>STOPPED</p>";
+    html += "<button onclick='startSpam()'>START</button>";
+    html += "<button onclick='stopSpam()'>STOP</button>";
+    html += "<script>";
+    html += "function startSpam(){fetch('/start').then(()=>{document.getElementById('status').innerHTML='SPAMMING'})";
+    html += "function stopSpam(){fetch('/stop').then(()=>{document.getElementById('status').innerHTML='STOPPED'})";
+    html += "</script></body></html>";
+
+    server.send(200, "text/html", html);
+}
+
+void handleStart() {
+    if (!spamming) {
+        spamming = true;
+        Serial.println("Starting spam task...");
+        xTaskCreatePinnedToCore(
+            [](void* param) {
+                Serial.println("Spam task started");
+                while (spamming) {
+                    if (random_mac) {
+                        uint8_t mac[6];
+                        for (int i = 0; i < 6; i++) mac[i] = esp_random() & 0xFF;
+                        esp_base_mac_addr_set(mac);
+                    }
+
+                    BLEAdvertisementData adv;
+                    if (current_device == 0) adv.setName("AirPods Pro");
+                    else adv.setName("ESP32 BLE");
+
+                    NimBLEAdvertising* pAdv = BLEDevice::getAdvertising();
+                    pAdv->setAdvertisementData(adv);
+                    pAdv->start();
+                    delay(80);
+                    pAdv->stop();
+                    delay(interval_ms);
+                }
+                Serial.println("Spam task exiting");
+                vTaskDelete(NULL);
+            },
+            "BLE-Spam",
+            4096,
+            NULL,
+            1,
+            &spamTaskHandle,
+            0
+        );
+    }
+    server.send(200, "text/plain", "Started");
+}
+
+void handleStop() {
+    spamming = false;
+    if (spamTaskHandle) {
+        vTaskDelete(spamTaskHandle);
+        spamTaskHandle = NULL;
+    }
+    BLEDevice::getAdvertising()->stop();
+    Serial.println("Spam stopped");
+    server.send(200, "text/plain", "Stopped");
+}
+
+void handleStatus() {
+    String json = "{"spamming":" + String(spamming ? "true" : "false") + "}";
+    server.send(200, "application/json", json);
+}
